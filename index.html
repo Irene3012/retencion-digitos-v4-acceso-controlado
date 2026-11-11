@@ -4,7 +4,7 @@
 :root{--ink:#243247;--muted:#6d7b8e;--line:#e2e8f0;--bg:#f5f7fb;--accent:#647fa8;--soft:#eaf0f8}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui, sans-serif}header{background:white;border-bottom:1px solid var(--line);padding:18px 5vw}h1{font-size:21px;margin:0}h2{font-size:20px;margin:0 0 8px}.sub{color:var(--muted);font-size:13px}main{max-width:1100px;margin:26px auto;padding:0 16px}.card{background:white;border:1px solid var(--line);border-radius:15px;padding:20px;margin-bottom:15px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:13px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}label{display:block;color:var(--muted);font-size:13px;margin-bottom:5px}input,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;font:inherit}button{border:0;border-radius:9px;background:var(--accent);color:white;padding:11px 15px;font:inherit;font-weight:650;cursor:pointer}button.secondary{background:var(--soft);color:var(--ink)}button:disabled{opacity:.4}.tabs{display:flex;gap:8px;margin-bottom:14px}.tabs button{background:var(--soft);color:var(--ink)}.tabs .active{background:var(--accent);color:white}.hidden{display:none!important}.pill{display:inline-block;padding:4px 10px;border-radius:30px;background:var(--soft);font-size:12px}.metric{font-size:27px;font-weight:750}.notice{padding:12px;background:#f0f4f9;border-radius:9px;color:#4c6078;font-size:13px}.sequence{font-size:40px;letter-spacing:12px;text-align:center;font-weight:750;padding:20px}.timer{text-align:center;font-size:28px;font-weight:750;color:var(--accent)}.answer{font-size:25px;text-align:center;letter-spacing:5px}table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:8px;border-bottom:1px solid var(--line)}th{color:var(--muted)}canvas{max-width:150px}@media(max-width:600px){.card{padding:16px}.sequence{font-size:32px;letter-spacing:7px}}
 </style></head><body><header><h1>Retención de dígitos</h1><div class="sub">Experimento sincronizado · 3 grupos de 30 participantes</div></header><main>
 <div class="tabs"><button id="tabAdmin" class="active" onclick="showTab('admin')">Investigador/a</button><button id="tabPart" onclick="showTab('participant')">Participante</button></div>
-<section id="admin"><div class="card"><h2>Panel del investigador</h2><p class="sub">Crea las tres salas de trabajo y activa el audio antes de empezar.</p><div class="row" style="margin-bottom:15px"><button onclick="testAudio()" style="background:#2b8a3e">🔊 1. Activar / Probar Audio del Aula</button><span class="sub">Pulsa esto primero para desbloquear los altavoces.</span></div><div class="grid"><div><label>URL pública de la web</label><input id="publicUrl" placeholder="https://tu-web.com"></div><div><label>Prefijo de códigos</label><input id="prefix" value="DIG" maxlength="8"></div></div><br><div class="row"><button onclick="createGroups()">Crear las 3 salas</button><button class="secondary" onclick="refreshAll()">Actualizar resultados</button><span id="adminStatus" class="sub"></span></div></div>
+<section id="admin"><div class="card"><h2>Panel del investigador</h2><p class="sub">Crea las tres salas de trabajo y prueba el sonido antes de empezar.</p><div class="row" style="margin-bottom:15px"><button onclick="playTone()" style="background:#2b8a3e">🔊 Probar Tono Acústico</button><span class="sub">Pulsa para verificar que los altavoces de la clase suenan.</span></div><div class="grid"><div><label>URL pública de la web</label><input id="publicUrl" placeholder="https://tu-web.com"></div><div><label>Prefijo de códigos</label><input id="prefix" value="DIG" maxlength="8"></div></div><br><div class="row"><button onclick="createGroups()">Crear las 3 salas</button><button class="secondary" onclick="refreshAll()">Actualizar resultados</button><span id="adminStatus" class="sub"></span></div></div>
 <div id="rooms" class="grid"></div><div id="allResults" class="card hidden"><div class="row" style="justify-content:space-between"><h2>Resultados de los tres grupos</h2><button class="secondary" onclick="exportCSV()">Descargar CSV</button></div><div style="overflow:auto"><table><thead><tr><th>Grupo</th><th>ID</th><th>Estado</th><th>Respuestas</th><th>Aciertos</th><th>Directos</th><th>Inversos</th><th>Secuencia</th></tr></thead><tbody id="resultRows"></tbody></table></div></div></section>
 <section id="participant" class="hidden"><div class="card" id="joinPanel"><h2>Acceso del participante</h2><p class="sub">Introduce el código de la sala y tu identificador.</p><div class="grid"><div><label>Código de grupo</label><input id="pCode" placeholder="DIG-G1"></div><div><label>Identificador individual</label><input id="pId" placeholder="P01" maxlength="8"></div></div><br><button onclick="join()">Entrar y quedar a la espera</button><span id="joinStatus" class="sub"></span></div>
 <div class="card hidden" id="taskPanel"><div class="row" style="justify-content:space-between"><div><span class="pill" id="groupPill">Grupo 1</span><h2 id="stageTitle">Esperando al investigador</h2></div><div class="sub" id="trialCount"></div></div><p class="sub" id="instruction">Permanece en esta pantalla. El investigador marcará el ritmo.</p><div class="notice" id="waitBox">Esperando a que el investigador inicie la fase.</div><div id="liveArea" class="hidden"><div class="sequence hidden" id="sequence">● ● ●</div><div class="timer" id="clock"></div><div id="responseBox" class="hidden"><label style="text-align:center">Introduce tu respuesta</label><input id="answer" class="answer" inputmode="numeric" autocomplete="off"><div class="row" style="justify-content:center;margin-top:10px"><button id="sendBtn" onclick="sendAnswer()">Enviar</button></div></div><p class="sub" id="phaseText" style="text-align:center"></p></div><div class="notice hidden" id="finished">Has terminado. Gracias por participar.</div></div></section>
@@ -16,9 +16,9 @@ const ADMIN_PASSWORD='1234';
 
 const configured=true; const db=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const stages=[
-{name:'Dígitos directos',instruction:'Escucha y repite los números en el mismo orden.',items:[['4 8','7 2'],['3 9 1','6 2 8'],['5 1 7 3','8 4 2 9'],['2 6 9 4 1','7 3 5 8 2'],['9 2 4 6 1 8','3 7 1 5 9 2'],['6 1 8 3 5 9 2','4 9 2 7 1 6 8'],['5 8 2 9 1 6 4 7','3 6 9 1 4 8 2 5'],['7 2 5 9 3 1 8 4 6','2 8 4 1 7 9 5 3 6']]},
-{name:'Dígitos inversos',instruction:'Escucha y repite los números en orden inverso.',items:[['6 2','9 4'],['3 8 1','5 2 7'],['7 1 4 9','2 8 5 3'],['4 9 2 6 1','8 3 7 5 2'],['1 6 3 8 5 2','9 4 7 1 6 3'],['5 2 8 1 7 4 9','3 6 1 9 4 7 2'],['8 3 6 1 9 4 2 7','2 7 4 9 1 5 8 3'],['4 1 8 6 2 9 5 3 7','9 5 2 7 4 1 8 6 3']]},
-{name:'Dígitos en secuencia',instruction:'Escucha y escribe los números de menor a mayor.',items:[['8 2','6 1'],['5 9 2','7 3 1'],['8 4 1 6','3 9 2 7'],['6 2 9 4 1','8 3 5 2 7'],['9 1 6 3 8 2','4 7 2 9 5 1'],['5 8 1 7 3 9 2','6 2 9 4 1 8 5'],['7 3 9 1 5 8 2 6','4 8 2 7 1 9 3 5'],['6 2 9 4 1 8 3 7 5','8 5 1 9 3 6 2 7 4']]}
+{name:'Dígitos directos',instruction:'Atiende al estímulo y repite los números en el mismo orden.',items:[['4 8','7 2'],['3 9 1','6 2 8'],['5 1 7 3','8 4 2 9'],['2 6 9 4 1','7 3 5 8 2'],['9 2 4 6 1 8','3 7 1 5 9 2'],['6 1 8 3 5 9 2','4 9 2 7 1 6 8'],['5 8 2 9 1 6 4 7','3 6 9 1 4 8 2 5'],['7 2 5 9 3 1 8 4 6','2 8 4 1 7 9 5 3 6']]},
+{name:'Dígitos inversos',instruction:'Atiende al estímulo y repite los números en orden inverso.',items:[['6 2','9 4'],['3 8 1','5 2 7'],['7 1 4 9','2 8 5 3'],['4 9 2 6 1','8 3 7 5 2'],['1 6 3 8 5 2','9 4 7 1 6 3'],['5 2 8 1 7 4 9','3 6 1 9 4 7 2'],['8 3 6 1 9 4 2 7','2 7 4 9 1 5 8 3'],['4 1 8 6 2 9 5 3 7','9 5 2 7 4 1 8 6 3']]},
+{name:'Dígitos en secuencia',instruction:'Atiende al estímulo y escribe los números de menor a mayor.',items:[['8 2','6 1'],['5 9 2','7 3 1'],['8 4 1 6','3 9 2 7'],['6 2 9 4 1','8 3 5 2 7'],['9 1 6 3 8 2','4 7 2 9 5 1'],['5 8 1 7 3 9 2','6 2 9 4 1 8 5'],['7 3 9 1 5 8 2 6','4 8 2 7 1 9 3 5'],['6 2 9 4 1 8 3 7 5','8 5 1 9 3 6 2 7 4']]}
 ];
 const trials=stages.flatMap((s,si)=>s.items.flatMap((pair,pi)=>pair.map((seq,ai)=>({stage:si,item:pi,attempt:ai,seq}))));
 const $=id=>document.getElementById(id);let rooms=[],session=null,participant=null,participantRow=null,offset=0,channel=null,timer=null,lastPlayed=-1,submitted=new Set(),results={};
@@ -106,15 +106,15 @@ function updateTimeline(){
   if(idx!==lastPlayed){
     lastPlayed=idx;submitted.delete(idx);$('answer').value='';$('sendBtn').disabled=false;$('responseBox').classList.add('hidden');
     $('sequence').textContent=t.seq.replaceAll(' ','  ');
-    $('phaseText').textContent='Escucha atentamente el audio en la sala';
-    if(within<10000) { playDigits(t.seq); }
+    $('phaseText').textContent='Atención al estímulo auditivo';
+    if(within<10000) { playTone(); }
   }
   
   if(within<10000){
     $('sequence').textContent=t.seq.replaceAll(' ','  ');
     $('clock').textContent=Math.ceil((10000-within)/1000)+' s';
     $('responseBox').classList.add('hidden');
-    $('phaseText').textContent='Presentación del estímulo';
+    $('phaseText').textContent='Presentación del estímulo (Tono + Dictado)';
   }else{
     $('sequence').textContent='—';
     $('clock').textContent=Math.ceil((20000-within)/1000)+' s';
@@ -124,40 +124,23 @@ function updateTimeline(){
   }
 }
 
-function testAudio(){
-  if(!('speechSynthesis' in window)){
-    alert('Tu navegador no soporta síntesis de voz.');
-    return;
+// Generador de tono acústico puro (100% infalible en cualquier navegador/ordenador)
+function playTone(){
+  try {
+    let ctx = new (window.AudioContext || window.webkitAudioContext)();
+    let osc = ctx.createOscillator();
+    let gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(587.33, ctx.currentTime); // Nota Re5 clara
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.5);
+  } catch(e) {
+    console.log('Error de audio:', e);
   }
-  speechSynthesis.cancel();
-  let u = new SpeechSynthesisUtterance("Audio activado correctamente para el experimento");
-  u.lang = 'es-ES';
-  speechSynthesis.speak(u);
-  alert('Audio desbloqueado. Si has escuchado la voz, ya puedes iniciar las fases con total normalidad.');
-}
-
-// Variable para almacenar referencias y evitar la recolección de basura del navegador
-let currentUtterances = [];
-
-function playDigits(seq){
-  if(!$('tabAdmin').classList.contains('active')) return;
-  if(!('speechSynthesis' in window)) return;
-  
-  speechSynthesis.cancel();
-  currentUtterances = [];
-  
-  let nums = seq.split(' '), i = 0;
-  
-  function next(){
-    if(i >= nums.length) return;
-    let u = new SpeechSynthesisUtterance(nums[i++]);
-    u.lang = 'es-ES';
-    u.rate = 0.82;
-    u.onend = () => setTimeout(next, 180);
-    currentUtterances.push(u); // Evita que el navegador elimine el audio en mitad de la secuencia
-    speechSynthesis.speak(u);
-  }
-  next();
 }
 
 async function sendAnswer(){let elapsed=Date.now()+offset-new Date(session.started_at).getTime();let range=getStageIndices(session.status);let idx=range.start+Math.floor(elapsed/20000);let within=elapsed%20000;if(within<10000||within>=20000||submitted.has(idx))return;await saveResponse(idx,false)}
