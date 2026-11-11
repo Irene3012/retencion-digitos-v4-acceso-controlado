@@ -12,7 +12,7 @@
 <script>
 const SUPABASE_URL='https://mxmmzcbuxqqrwowjcfna.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_rpHD5mBTIO4_46I2GfKg-g_j1ib1AM9';
-const ADMIN_PASSWORD='1234'; // Cambia aquí '1234' por la contraseña que prefieras
+const ADMIN_PASSWORD='1234'; // Cambia aquí '1234' por tu contraseña secreta
 
 const configured=true; const db=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const stages=[
@@ -54,7 +54,7 @@ async function advanceGroup(id, targetStatus){
 
 async function refreshAll(){if(!db)return;if(!rooms.length){let {data}=await db.from('sessions').select('*').order('group_label');rooms=data||[];renderRooms()}let all=[];for(let [i,r] of rooms.entries()){let [{data:p},{data:a}]=await Promise.all([db.from('participants').select('*').eq('session_id',r.id),db.from('responses').select('*').eq('session_id',r.id)]);$(`count${i}`)&&($(`count${i}`).textContent=(p||[]).length+'/30');for(let person of (p||[])){let ar=(a||[]).filter(x=>x.participant_id===person.id);let by=[0,1,2].map(s=>ar.filter(x=>x.stage===s&&x.correct).length);all.push({group:r.group_label,id:person.participant_code,completed:person.completed,progress:person.progress||0,answers:ar.length,correct:ar.filter(x=>x.correct).length,by})}results[r.id]={participants:p||[],answers:a||[]}}$('allResults').classList.remove('hidden');$('resultRows').innerHTML=all.map(x=>`<tr><td>${esc(x.group)}</td><td>${esc(x.id)}</td><td>${x.completed?'Finalizado':x.progress+'/'+trials.length}</td><td>${x.answers}</td><td>${x.correct}</td><td>${x.by[0]}</td><td>${x.by[1]}</td><td>${x.by[2]}</td></tr>`).join('')}
 function copyText(t){if(t)navigator.clipboard?.writeText(t)}
-async function join(){if(!db){$('joinStatus').textContent='Configura Supabase.';return}let code=$('pCode').value.trim().toUpperCase(),id=$('pId').value.trim().toUpperCase();if(!/^P(0[1-9]|[12][0-9]|30)$/.test(id)){$('joinStatus').textContent='Usa P01 a P30.';return}let {data:s,error}=await db.from('sessions').select('*').eq('join_code',code).maybeSingle();if(error||!s){$('joinStatus').textContent='Sala no encontrada.';return}if(s.status==='closed'){$('joinStatus').textContent='Sala cerrada.';return}let {data:p}=await db.from('participants').select('*').eq('session_id',s.id).eq('participant_code',id).maybeSingle();if(!p){let {data:newP,error:pe}=await db.from('participants').insert({session_id:s.id,participant_code:id,progress:0,completed:false}).select().single();if(pe){$('joinStatus').textContent=pe.message;return}p=newP}session=s;participant=id;participantRow=p;try{await serverClock()}catch(e){}$('joinPanel').classList.add('hidden');$('taskPanel').classList.remove('hidden');$('groupPill').textContent=s.group_label;evalSessionState();listen();}
+async function join(){if(!db){$('joinStatus').textContent='Configura Supabase.';return}let code=$('pCode').value.trim().toUpperCase(),id=$('pId'].value.trim().toUpperCase();if(!/^P(0[1-9]|[12][0-9]|30)$/.test(id)){$('joinStatus').textContent='Usa P01 a P30.';return}let {data:s,error}=await db.from('sessions').select('*').eq('join_code',code).maybeSingle();if(error||!s){$('joinStatus').textContent='Sala no encontrada.';return}if(s.status==='closed'){$('joinStatus').textContent='Sala cerrada.';return}let {data:p}=await db.from('participants').select('*').eq('session_id',s.id).eq('participant_code',id).maybeSingle();if(!p){let {data:newP,error:pe}=await db.from('participants').insert({session_id:s.id,participant_code:id,progress:0,completed:false}).select().single();if(pe){$('joinStatus').textContent=pe.message;return}p=newP}session=s;participant=id;participantRow=p;try{await serverClock()}catch(e){}$('joinPanel').classList.add('hidden');$('taskPanel').classList.remove('hidden');$('groupPill').textContent=s.group_label;evalSessionState();listen();}
 function listen(){if(channel)db.removeChannel(channel);channel=db.channel('sync-'+session.id).on('postgres_changes',{event:'UPDATE',schema:'public',table:'sessions',filter:'id=eq.'+session.id},async payload=>{session=payload.new;try{await serverClock()}catch(e){}evalSessionState();}).subscribe()}
 
 function evalSessionState(){
@@ -131,8 +131,11 @@ function playDigits(seq){
   if(!('speechSynthesis'in window))return;
   if(isPlayingDigits) return;
   
-  isPlayingDigits = true;
+  // Despertar y forzar el motor de voz del navegador
+  speechSynthesis.resume();
   speechSynthesis.cancel();
+  
+  isPlayingDigits = true;
   let nums=seq.split(' '),i=0;
   
   function next(){
