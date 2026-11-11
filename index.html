@@ -12,7 +12,7 @@
 <script>
 const SUPABASE_URL='https://mxmmzcbuxqqrwowjcfna.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_rpHD5mBTIO4_46I2GfKg-g_j1ib1AM9';
-const ADMIN_PASSWORD='DiseñoExperimental'; // Contraseña para entrar al panel de investigador
+const ADMIN_PASSWORD='1234'; // Cambia aquí '1234' por la contraseña que prefieras
 
 const configured=true; const db=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const stages=[
@@ -124,11 +124,29 @@ function updateTimeline(){
   }
 }
 
+let isPlayingDigits = false;
+
 function playDigits(seq){
   if(!$('tabAdmin').classList.contains('active')) return;
   if(!('speechSynthesis'in window))return;
-  speechSynthesis.cancel();let nums=seq.split(' '),i=0;
-  function next(){if(i>=nums.length)return;let u=new SpeechSynthesisUtterance(nums[i++]);u.lang='es-ES';u.rate=.82;u.onend=()=>setTimeout(next,180);speechSynthesis.speak(u)}next()
+  if(isPlayingDigits) return;
+  
+  isPlayingDigits = true;
+  speechSynthesis.cancel();
+  let nums=seq.split(' '),i=0;
+  
+  function next(){
+    if(i>=nums.length){
+      isPlayingDigits = false;
+      return;
+    }
+    let u=new SpeechSynthesisUtterance(nums[i++]);
+    u.lang='es-ES';
+    u.rate=.82;
+    u.onend=()=>setTimeout(next,180);
+    speechSynthesis.speak(u);
+  }
+  next();
 }
 
 async function sendAnswer(){let elapsed=Date.now()+offset-new Date(session.started_at).getTime();let range=getStageIndices(session.status);let idx=range.start+Math.floor(elapsed/20000);let within=elapsed%20000;if(within<10000||within>=20000||submitted.has(idx))return;await saveResponse(idx,false)}
